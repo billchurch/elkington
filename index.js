@@ -39,6 +39,7 @@ var ElkConnection = function (opts) {
 
   function afterConnect() {
 
+    that.emit('connect');
     that._connection.setEncoding('ascii');
 
     // data event handler
@@ -53,7 +54,7 @@ var ElkConnection = function (opts) {
         return that._connection.write(that.password + '\r\n');
       } else if (data.indexOf('Elk-M1XEP: Login successful.') !== -1) {
         that._authorized = true;
-        that.emit('connect');
+        that.emit('authorized');
       }
 
       // we are getting a weird message during auth process
@@ -62,8 +63,11 @@ var ElkConnection = function (opts) {
       }
 
       // if we are not using un/pw, we are connected and ready
-      if (!that.useSecure) that.emit('connect');
-
+      if(!that.useSecure && !that._authorized) { 
+        that.emit('authorized');
+        that._authorized = true;
+      }
+      
       // assuming the above passes, we parse the elk message and emit
       var msg = parser.parseMessage(data);
       msg.time = new Date();
