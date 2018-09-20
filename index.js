@@ -1,16 +1,18 @@
-var net = require('net');
-var tls = require('tls');
-var protocol = require('./lib/protocol');
-var parser = require('./lib/parser');
-var messaging = require('./lib/messaging');
-var safereturn = require('safereturn');
-var EventEmitter = require('events').EventEmitter;
+'use strict'
+
+const net = require('net');
+const tls = require('tls');
+const protocol = require('./lib/protocol');
+const parser = require('./lib/parser');
+const messaging = require('./lib/messaging');
+const safereturn = require('safereturn');
+const EventEmitter = require('events').EventEmitter;
 
 // safereturn overrides
 safereturn.defaultTimeout = 3000;
 
 safereturn.onTimeout = function (wrappedCallback, oldError) {
-  var err = new Error('The Elk M1XEP failed to respond');
+  let err = new Error('The Elk M1XEP failed to respond');
   wrappedCallback(err);
 }
 
@@ -18,7 +20,7 @@ safereturn.onTimeout = function (wrappedCallback, oldError) {
 /* ElkConnection definition      */
 /*********************************/
 
-var ElkConnection = function (opts) {
+const ElkConnection = function (opts) {
 
   if (!opts) opts = {};
 
@@ -35,7 +37,7 @@ var ElkConnection = function (opts) {
     ? opts.defaultArmMode.toLowerCase()
     : 'away';
 
-  var that = this;
+  const that = this;
 
   function afterConnect() {
 
@@ -69,7 +71,7 @@ var ElkConnection = function (opts) {
       }
       
       // assuming the above passes, we parse the elk message and emit
-      var msg = parser.parseMessage(data);
+      const msg = parser.parseMessage(data);
       msg.time = new Date();
       msg.host = that._connection.address().address;
       msg.port = that.port;
@@ -96,7 +98,7 @@ var ElkConnection = function (opts) {
 
   if (this.useSecure) {
 
-    var ciphers = ['TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
+    const ciphers = ['TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
       'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256',
       'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384',
       'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA',
@@ -108,11 +110,11 @@ var ElkConnection = function (opts) {
       'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256',
       'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'].join(':');
 
-    var options = {
+    const options = {
       secureProtocol: 'TLSv1_method',
       rejectUnauthorized: false,
       //requestCert: true,
-      //cipher: 'AES256-SHA'
+      cipher: ciphers // 'AES256-SHA'
     };
     this._connection = new tls.connect(this.port, this.host, options, afterConnect);
   } else {
@@ -185,8 +187,8 @@ ElkConnection.prototype.alarmByZoneRequest = function (callback) {
 }
 
 ElkConnection.prototype.speak = function (message) {
-  var commands = messaging.getWordCommands(message);
-  for (var i = 0; i < commands.length; i++) {
+  const commands = messaging.getWordCommands(message);
+  for (let i = 0; i < commands.length; i++) {
     this._connection.write(commands[i]);
   }
 }
