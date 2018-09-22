@@ -9,7 +9,9 @@ var tests = [
   { ascii: '0ACC063000E0', message: 'Control output change update' },
   { ascii: '19UA000123C33036BC9A41F009F', message: 'User code areas report data' },
   { ascii: '0BPCA08010091', message: 'PLC change update' },
-  { ascii: '1BSD01001Miller Res      0054', message: 'Text string description report data' }
+  { ascii: '1BSD01001Miller Res      0054', message: 'Text string description report data' },
+  { ascii: '66LW108109000000000000000000000000000000000000000000000000000000000000000000000000000000000000130000007A', message: 'Reply temperature data' }
+
 ]
 
 describe('parser', function () {
@@ -117,6 +119,18 @@ describe('parser', function () {
       results.data.typeName.should.equal('Area Name')
       results.data.address.should.equal(1)
       results.data.text.should.equal('Miller Res')
+      done()
+    })
+    it('should parse \'Reply Temperature data\' message ok', function (done) {
+      var results = parser.parseMessage(tests[9].ascii)
+      results.message.should.equal(tests[9].message)
+      results.length.should.equal(102)
+      results.dataRaw.should.equal('10810900000000000000000000000000000000000000000000000000000000000000000000000000000000000013000000')
+      results.data.keypadTempF['1'].should.equal(68)
+      results.data.keypadTempF['2'].should.equal(69)
+      results.data.keypadTempF['3'].should.equal(-40)
+      results.data.zoneTempF['1'].should.equal(-60)
+      results.data.zoneTempF['15'].should.equal(70)
       done()
     })
   })
