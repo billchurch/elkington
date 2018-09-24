@@ -10,8 +10,8 @@ var tests = [
   { ascii: '19UA000123C33036BC9A41F009F', message: 'User code areas report data' },
   { ascii: '0BPCA08010091', message: 'PLC change update' },
   { ascii: '1BSD01001Miller Res      0054', message: 'Text string description report data' },
-  { ascii: '66LW108109000000000000000000000000000000000000000000000000000000000000000000000000000000000000130000007A', message: 'Reply temperature data' }
-
+  { ascii: '66LW108109000000000000000000000000000000000000000000000000000000000000000000000000000000000000130000007A', message: 'Reply temperature data' },
+  { ascii: '0ECR060541620003', message: 'Custom value report data' }
 ]
 
 describe('parser', function () {
@@ -121,6 +121,7 @@ describe('parser', function () {
       results.data.text.should.equal('Miller Res')
       done()
     })
+
     it('should parse \'Reply Temperature data\' message ok', function (done) {
       var results = parser.parseMessage(tests[9].ascii)
       results.message.should.equal(tests[9].message)
@@ -131,6 +132,15 @@ describe('parser', function () {
       results.data.keypadTempF['3'].should.equal(-40)
       results.data.zoneTempF['1'].should.equal(-60)
       results.data.zoneTempF['15'].should.equal(70)
+      done()
+    })
+
+    it('should parse \'Custom Value Report data\' message ok', function (done) {
+      var results = parser.parseMessage(tests[10].ascii)
+      results.message.should.equal(tests[10].message)
+      results.length.should.equal(14)
+      results.dataRaw.should.equal('0605416200')
+      results.data['06'].value.should.equal('21:40')
       done()
     })
   })
